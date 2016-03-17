@@ -1,62 +1,37 @@
 package com.example.shuweizhao.splash_screen_viewpager;
 
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.View;
+import android.widget.Button;
+
+import com.viewpagerindicator.CirclePageIndicator;
 
 public class MainActivity extends FragmentActivity {
 
-        ViewPager viewPager=null;
-        int numberOfViewPagerChildren = 4;
-        int lastIndexOfViewPagerChildren = numberOfViewPagerChildren - 1;
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-            viewPager = (ViewPager) findViewById(R.id.pager);
-            viewPager.setAdapter(new MyAdapter(getSupportFragmentManager()));
 
-            final LayerDrawable background = (LayerDrawable) viewPager.getBackground();
+    private MyAdapter mAdapter;
+    private ViewPager mPager;
+    private CirclePageIndicator mIndicator;
+    private Button button;
 
-            background.getDrawable(0).setAlpha(0); // this is the lowest drawable
-            background.getDrawable(1).setAlpha(0);
-            background.getDrawable(2).setAlpha(255); // this is the upper one
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-            viewPager.setPageTransformer(true, new ViewPager.PageTransformer() {
-                @Override
-                public void transformPage(View view, float position) {
+        mAdapter = new MyAdapter(getSupportFragmentManager());
+        mPager = (ViewPager)findViewById(R.id.pager);
+        mPager.setAdapter(mAdapter);
+        mIndicator = (CirclePageIndicator)findViewById(R.id.indicator);
+        mIndicator.setViewPager(mPager);
 
-                    int index = (Integer) view.getTag();
-                    Drawable currentDrawableInLayerDrawable;
-                    currentDrawableInLayerDrawable = background.getDrawable(index);
+    }
 
-                    if (position <= -1 || position >= 1) {
-                        currentDrawableInLayerDrawable.setAlpha(0);
-                    } else if (position == 0) {
-                        currentDrawableInLayerDrawable.setAlpha(255);
-                    } else {
-                        currentDrawableInLayerDrawable.setAlpha((int) (255 - Math.abs(position * 255)));
-                    }
-
-                }
-            });
-        }
-
-        @Override
-        public void onBackPressed() {
-            if (viewPager.getCurrentItem() == 0) {
-                super.onBackPressed();
-            }
-            else {
-                viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
-            }
-        }
-
-    class MyAdapter extends FragmentStatePagerAdapter {
+    private class MyAdapter extends FragmentPagerAdapter {
+            public  final int[] mDrawableResIds = {R.drawable.bg1, R.drawable.bg2,
+            R.drawable.bg3, R.drawable.bg4};
 
             public MyAdapter(android.support.v4.app.FragmentManager fm) {
                 super(fm);
@@ -64,45 +39,15 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public android.support.v4.app.Fragment getItem(int i) {
-                android.support.v4.app.Fragment fragment=null;
-                switch (i) {
-                    case 0:
-                        fragment = new FragmentA();
-                        break;
-                    case 1:
-                        fragment = new FragmentB();
-                        break;
-                    case 2:
-                        fragment = new FragmentC();
-                        break;
-                    case 3:
-                        fragment = new FragmentD();
-                        break;
-                }
-                return fragment;
+                return CircleFragment.newInstance(mDrawableResIds[i]);
             }
 
             @Override
             public int getCount() {
-                return numberOfViewPagerChildren;
+                return mDrawableResIds.length;
             }
 
-            @Override
-            public boolean isViewFromObject(View view, Object object) {
-                if (object instanceof FragmentD) {
-                    view.setTag(0);
-                }
-                if(object instanceof FragmentA){
-                    view.setTag(1);
-                }
-                if(object instanceof FragmentB){
-                    view.setTag(2);
-                }
-                if(object instanceof FragmentC){
-                    view.setTag(3);
-                }
-                return super.isViewFromObject(view, object);
-            }
+
         }
 
     }
